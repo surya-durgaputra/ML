@@ -168,4 +168,24 @@ dataset['SavingCount'] = dataset[savings_screens].sum(axis=1)
 dataset.drop(columns=savings_screens)
 
 # do the same for all other related screens
+cm_screens = ["Credit1",
+               "Credit2",
+               "Credit3",
+               "Credit3Container",
+               "Credit3Dashboard"]
+dataset["CMCount"] = dataset[cm_screens].sum(axis=1)
+dataset = dataset.drop(columns=cm_screens)
+
+cc_screens = ["CC1",
+                "CC1Category",
+                "CC3"]
+dataset["CCCount"] = dataset[cc_screens].sum(axis=1)
+dataset = dataset.drop(columns=cc_screens)
+
+loan_screens = ["Loan",
+               "Loan2",
+               "Loan3",
+               "Loan4"]
+dataset["LoansCount"] = dataset[loan_screens].sum(axis=1)
+dataset = dataset.drop(columns=loan_screens)
 
