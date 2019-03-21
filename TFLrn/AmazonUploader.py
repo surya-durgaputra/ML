@@ -8,8 +8,10 @@ Created on Fri Mar 15 11:00:18 2019
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_california_housing
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 def reset_graph(seed=42):
     tf.reset_default_graph()
@@ -99,8 +101,11 @@ X = tf.placeholder(tf.float32, shape=(None,n+1),name="X")
 y = tf.placeholder(tf.float32, shape=(None,1),name="y")
 theta = tf.Variable(tf.random_uniform([n+1,1],-1.0,1.0,seed=42,name="theta"))
 y_pred = tf.matmul(X,theta,name="predictions")
-error = y_pred - y
-mse = tf.reduce_mean(tf.square(error), name="mse")
+#create a name scope
+with tf.name_scope("loss") as scope:
+    error = y_pred - y
+    mse = tf.reduce_mean(tf.square(error), name="mse")
+
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate)
 training_op = optimizer.minimize(mse)
 
@@ -138,14 +143,89 @@ with tf.Session() as sess:
 file_writer.close()
 
 
+#reset_graph()
+#init = tf.global_variables_initializer()
+#def relu(X):
+#    with tf.name_scope("relu"):
+#        w_shape = (int(X.get_shape()[1]), 1)                          # not shown in the book
+#        w = tf.Variable(tf.random_normal(w_shape), name="weights")    # not shown
+#        b = tf.Variable(0.0, name="bias")                             # not shown
+#        z = tf.add(tf.matmul(X, w), b, name="z")                      # not shown
+#        return tf.maximum(z, 0., name="max")                          # not shown
+#
+#n_features = 3
+#X = tf.placeholder(tf.float32, shape=(None, n_features), name="X")
+#relus = [relu(X) for i in range(5)]
+#output = tf.add_n(relus, name="output")
+#file_writer = tf.summary.FileWriter("logs/relu2", tf.get_default_graph())
+#
+#X_sample = np.random.normal(size=(1,n_features))
+#with tf.Session() as sess:
+#    sess.run(init)
+#    sess.run(output,feed_dict={X:X_sample})
+#file_writer.close()
+
+from sklearn.datasets import make_blobs
+data = make_blobs(n_samples=50,n_features=2,centers=2,random_state=75)
+
+reset_graph()
+
+# simple linear regression
+sample_size = 1000000
+batch_size = 10
+n_epochs = 10
+x_data = np.linspace(0,10,sample_size)+np.random.uniform(-1.5,1.5,sample_size)
+y_label = np.linspace(0,10,sample_size)+np.random.uniform(-1.5,1.5,sample_size)
+
+xdf = pd.DataFrame(x_data,columns=['X'])
+ydf = pd.DataFrame(y_label,columns=['Y'])
+x_y = pd.concat((xdf,ydf),axis=1)
+
+m,c = np.random.rand(2)
+print('original slope:',m,' original intercept:',c)
+m = tf.Variable(m,dtype=tf.float32)
+c = tf.Variable(c,dtype=tf.float32)
+
+xph = tf.placeholder(tf.float32,[batch_size])
+yph = tf.placeholder(tf.float32,[batch_size])
+
+y_predicted = m*xph + c
+
+loss = tf.reduce_sum(tf.square(y_predicted-yph))
+    
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+train = optimizer.minimize(loss)
+init = tf.global_variables_initializer()
+
+with tf.Session() as sess:
+    sess.run(init)
+    for _ in range(n_epochs):
+        rand_index = np.random.randint(len(x_data),size=batch_size)
+        x_batch = x_data[rand_index]
+        y_batch = y_label[rand_index]
+        sess.run(train,feed_dict={xph:x_batch,yph:y_batch})
+    final_slope,final_intercept = sess.run([m,c])    
+    print('slope:',final_slope,' intercept:',final_intercept)
+x_y.sample(n=250).plot(kind='scatter',x='X',y='Y')
+y_final = [final_slope*x + final_intercept for x in x_data]
+plt.plot(x_data,y_final,'r')
+# end simple linear regression
+
+# Estimator API : simple example
+feat_cols = [tf.feature_column.numeric_column('x',shape=[1])]
+estimator = tf.estimator.LinearRegressor(feature_columns=feat_cols)
+
+x_train, x_eval, y_train, y_eval = train_test_split(x_data,y_label,
+                                                    test_size=0.3, 
+                                                    random_state=101)
 
 
 
 
 
 
-
-
+    
+    
 
 
 
