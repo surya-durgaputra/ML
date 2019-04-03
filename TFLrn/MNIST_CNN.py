@@ -113,7 +113,7 @@ def cnn_approach(steps=300):
     # CONVOLUTIONAL LAYER
     def convolutional_layer(input_x, shape):
         W = init_weights(shape)
-        b = init_bias([shape[3]])
+        b = init_bias([shape[3]])#biases run along the 4th dimension..corresponding to no. of features (or neurons in that layer)
         return tf.nn.relu(conv2d(input_x,W)+b)
     
     # now we will make the normal (fully-connected) layer
@@ -144,9 +144,13 @@ def cnn_approach(steps=300):
     convo_2_pooling = max_pool_2by2(convo_2)
     
     convo_2_flat = tf.reshape(convo_2_pooling,[-1,7*7*64])
-    full_layer_one = tf.nn.relu(normal_full_layer(convo_2_flat,1024))
+    full_layer_one = tf.nn.relu(normal_full_layer(convo_2_flat,1024))#we decided to have 1024 neurons in this layer
     
     #DROPOUT layer : to avoid overfitting
+    # we randomly drop neurons during training
+    # for example: hold_prob = 0.5 means each neuron has 50% chance of being retained
+    # (conversely, each neuron has 50% chance of being dropped).
+    # so with hold_prob=0.5, we will randomly drop half of our neurons
     hold_prob = tf.placeholder(tf.float32)
     full_one_dropout = tf.nn.dropout(full_layer_one,keep_prob=hold_prob)
     
