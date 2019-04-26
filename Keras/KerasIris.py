@@ -64,24 +64,43 @@ def model():
 
 estimator = KerasClassifier(
         build_fn=model,
-        epochs=200, batch_size=20,
+        epochs=1, batch_size=20,
         verbose=2)
 kfold = KFold(n_splits=5, shuffle=True, random_state=seed)
 results = cross_val_score(estimator, X_train, y_train, cv=kfold)
 print("Model Performance: mean: %.2f%% std: (%.2f%%)" % (results.mean()*100, results.std()*100))
-#model = model()
-#model.fit(
-#       X_train,
-#       y_train,
-#       epochs=200,
-#       shuffle=True, # shuffle data randomly.
-#       #NNs perform best on randomly shuffled data
-#       verbose=2 # this will tell keras to print more detailed info
-#       # during trainnig to know what is going on
-#       )
-#
-##run the test dataset
-#test_error_rate = model.evaluate(X_test, y_test, verbose=0)
-#print(
-#      "The cross entropy for the test data is : {}".format(
-#              test_error_rate))
+model = model()
+model.fit(
+       X_train,
+       y_train,
+       epochs=200,
+       shuffle=True, # shuffle data randomly.
+       #NNs perform best on randomly shuffled data
+       verbose=2 # this will tell keras to print more detailed info
+       # during trainnig to know what is going on
+       )
+
+#run the test dataset
+test_error_rate = model.evaluate(X_test, y_test, verbose=0)
+print(
+      "{} : {:.2f}%".format(model.metrics_names[1],
+              test_error_rate[1]*100))
+print(
+      "{} : {:.2f}%".format(model.metrics_names[0],
+              test_error_rate[0]*100))
+
+## Lets do prediction
+predicted_targets = model.predict_classes(X_test)
+true_targets = encoder.inverse_transform(y_test.values)
+
+def performance_tracker(actual, expected):
+    flowers = {0:'setosa', 1:'versicolor', 2:'virginica'}
+    print("Flowers in test set: Setosa={} Versicolor={} Virginica={}".format(
+            y_test.setosa.sum(), y_test.versicolor.sum(),
+            y_test.virginica.sum()))
+    for act,exp in zip(actual, expected):
+        if act != exp:
+            print("ERROR: {} predicted as {}".format(flowers[exp],
+                  flowers[act]))
+            
+performance_tracker(predicted_targets, true_targets)
