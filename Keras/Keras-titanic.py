@@ -34,8 +34,8 @@ def clean_feature_columns(df, feature_columns):
     return clean_cols
 
 def fill_numeric_col(df, feature_columns, target_column):
+    filled_col_name = target_column + '_filled'
     if df[target_column].isnull().any():
-        filled_col_name = target_column + '_filled'
         df[filled_col_name] = df.groupby(feature_columns)[target_column]\
             .transform(lambda x: x.fillna(np.nan if pd.isnull(x.median()) else x.median()))
         while True:
@@ -51,11 +51,12 @@ def fill_numeric_col(df, feature_columns, target_column):
                 break
         return df
     else:
+        df[filled_col_name] = df[target_column]
         return df
 
 def fill_categoric_col(df, feature_columns, target_column):
+    filled_col_name = target_column + '_filled'
     if df[target_column].isnull().any():
-        filled_col_name = target_column + '_filled'
         df[filled_col_name] = df.groupby(feature_columns)[target_column]\
             .transform(lambda x: x.fillna(np.nan if x.count()<=0 else x.mode()[0]))
         while True:
@@ -71,11 +72,13 @@ def fill_categoric_col(df, feature_columns, target_column):
                 break
         return df
     else:
+        df[filled_col_name] = df[target_column]
         return df
 
 titanic_df = fill_numeric_col(titanic_df,clean_feature_columns(titanic_df,['Sex', 'Pclass','Parch']),'Age')
 titanic_df = fill_categoric_col(titanic_df,clean_feature_columns(titanic_df,['Sex', 'Pclass','Parch','SibSp']),'Embarked')
 titanic_df = fill_categoric_col(titanic_df,clean_feature_columns(titanic_df,['Sex', 'Pclass','Parch','SibSp','Fare']),'Cabin')
+
 titanic_test_df = fill_numeric_col(titanic_test_df,clean_feature_columns(titanic_test_df,['Sex', 'Pclass','Parch']),'Age')
 titanic_test_df = fill_categoric_col(titanic_test_df,clean_feature_columns(titanic_test_df,['Sex', 'Pclass','Parch','SibSp']),'Embarked')
 titanic_test_df = fill_categoric_col(titanic_test_df,clean_feature_columns(titanic_test_df,['Sex', 'Pclass','Parch','SibSp','Fare']),'Cabin')
