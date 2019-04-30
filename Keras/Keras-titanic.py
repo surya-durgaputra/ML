@@ -8,6 +8,7 @@ Created on Sun Apr 21 21:23:41 2019
 
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 def rhead(x, nrow = 6, ncol = 4):
     pd.set_option('display.expand_frame_repr', False)
@@ -82,6 +83,11 @@ titanic_df = fill_categoric_col(titanic_df,clean_feature_columns(titanic_df,['Se
 titanic_test_df = fill_numeric_col(titanic_test_df,clean_feature_columns(titanic_test_df,['Sex', 'Pclass','Parch']),'Age')
 titanic_test_df = fill_categoric_col(titanic_test_df,clean_feature_columns(titanic_test_df,['Sex', 'Pclass','Parch','SibSp']),'Embarked')
 titanic_test_df = fill_categoric_col(titanic_test_df,clean_feature_columns(titanic_test_df,['Sex', 'Pclass','Parch','SibSp','Fare']),'Cabin')
+
+X = titanic_df.drop(['Survived','Age','Embarked','Cabin'], axis=1)
+y = titanic_df[titanic_df['Survived']]
+
+
 
 #t = titanic_test_df.groupby(clean_feature_columns(titanic_test_df,['Sex', 'Pclass','Parch','SibSp','Fare']))['Cabin']
 #t1 = titanic_test_df.groupby(['Sex', 'Pclass','Parch','SibSp'])['Cabin']
