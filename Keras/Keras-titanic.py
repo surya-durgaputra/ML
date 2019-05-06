@@ -16,6 +16,7 @@ from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from keras import backend as K
+import seaborn as sns
 
 def rhead(x, nrow = 6, ncol = 4):
     pd.set_option('display.expand_frame_repr', False)
@@ -47,6 +48,15 @@ def clean_feature_columns(df, feature_columns):
     return clean_cols
 
 def fill_numeric_col(df, feature_columns, target_column):
+    """
+    We fill the numeric columns by median. 
+    
+    feature_columns : list. This will create group-by sub-indexes. The order
+    will be as it appears in the list. If a particular sub-index results in
+    median value of NaN, it is automatically dropped from feature_columns
+    
+    target_column: the target column that is to be filled
+    """
     filled_col_name = target_column + '_filled'
     if df[target_column].isnull().any():
         df[filled_col_name] = df.groupby(feature_columns)[target_column]\
@@ -68,6 +78,15 @@ def fill_numeric_col(df, feature_columns, target_column):
         return df
 
 def fill_categoric_col(df, feature_columns, target_column):
+    """
+    We fill the categorical columns by mode. 
+    
+    feature_columns : list. This will create group-by sub-indexes. The order
+    will be as it appears in the list. If a particular sub-index results in
+    mode value of NaN, it is automatically dropped from feature_columns
+    
+    target_column: the target column that is to be filled
+    """
     filled_col_name = target_column + '_filled'
     if df[target_column].isnull().any():
         df[filled_col_name] = df.groupby(feature_columns)[target_column]\
@@ -87,6 +106,11 @@ def fill_categoric_col(df, feature_columns, target_column):
     else:
         df[filled_col_name] = df[target_column]
         return df
+
+#### Feature analysis
+#### lets study the survival rate based on passenger class and sex
+cntplt = sns.countplot(data=titanic_df, x='Pclass', hue='Sex')
+
 
 titanic_df = fill_numeric_col(titanic_df,clean_feature_columns(titanic_df,['Sex', 'Pclass','Parch']),'Age')
 titanic_df = fill_categoric_col(titanic_df,clean_feature_columns(titanic_df,['Sex', 'Pclass','Parch']),'Embarked')
