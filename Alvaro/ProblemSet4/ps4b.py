@@ -144,8 +144,10 @@ def playGame(wordList):
                 player_option = player_option.lower()
                 if player_option == 'c':    
                     compPlayHand(hand,wordList,n)
-                else:
+                elif player_option =='u':
                     playHand(hand,wordList,n)
+                else:
+                    print('Invalid command')
             else:
                 print('You have not played a hand yet. Please play a new hand first!')
         elif option == 'e':

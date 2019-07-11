@@ -309,11 +309,11 @@ def playGame(wordList):
         option = option.lower()
         if option == 'n':
             hand = dealHand(HAND_SIZE)
-            n = calculateHandlen(hand)
+            n = HAND_SIZE
             playHand(hand,wordList,n)
         elif option == 'r':
             if hand:
-                n = calculateHandlen(hand)
+                n = HAND_SIZE
                 playHand(hand,wordList,n)
             else:
                 print('You have not played a hand yet. Please play a new hand first!')
