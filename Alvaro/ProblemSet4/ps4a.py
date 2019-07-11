@@ -98,9 +98,15 @@ def displayHand(hand):
 
     hand: dictionary (string -> int)
     """
+    joined_str = ''
+    #print('Current hand: {}'.format(joined_str))
     for letter in hand.keys():
         for j in range(hand[letter]):
-             print(letter,end=" ")       # print all on the same line
+             joined_str +=  letter + ' '      # print all on the same line
+    print('Current hand:',joined_str)
+#    for letter in hand.keys():
+#        for j in range(hand[letter]):
+#             print(letter,end=" ")       # print all on the same line
     print()                             # print an empty line
 
 #
@@ -254,7 +260,6 @@ def playHand(hand, wordList, n):
         word = word.lower()
         # If the input is a single period:
         if word == '.':
-            print("Goodbye! you earned: {} points" .format((earned)))  #must be diffent output
             break
             # End the game (break out of the loop)
 
@@ -264,18 +269,22 @@ def playHand(hand, wordList, n):
             # If the word is not valid:
             if not isValidWord(word, hand, wordList):
                 # Reject invalid word (print a message followed by a blank line)
-                print('Invalid word')
+                print('Invalid word, please try again.')
                 print()    
             # Otherwise (the word is valid):
             else:
                 # Tell the user how many points the word earned, and the updated total score, in one line followed by a blank line
                 earned = getWordScore(word, n) #must be n
-                print('You earned: {} points'.format(earned))
-                # Update the hand 
                 totalScore += earned
+                print('"{}" earned {} points. Total: {}'.format(word,earned,totalScore))
+                # Update the hand 
+                hand = updateHand(hand, word)
 
     # Game is over (user entered a '.' or ran out of letters), so tell user the total score
-    print('total score: {}'.format(totalScore))
+    if(word=='.'):
+        print("Goodbye! Total score: {} points" .format((totalScore)))  #must be diffent output
+    else:
+        print("Ran out of letters. Total score: {} points" .format((totalScore)))  #must be diffent output
 
 #
 # Problem #5: Playing a game
@@ -294,21 +303,25 @@ def playGame(wordList):
     2) When done playing the hand, repeat from step 1    
     """
     # TO DO ... <-- Remove this comment when you code this function
-    option = input('Enter option:')
-    option = option.lower()
     hand = None
-    if option == 'n':
-        hand = dealHand(HAND_SIZE)
-        playHand(hand,wordList,HAND_SIZE)
-    elif option == 'r':
-        if hand:
-            playHand(hand,wordList,HAND_SIZE)
+    while True:
+        option = input('Enter n to deal a new hand, r to replay the last hand, or e to end game:')
+        option = option.lower()
+        if option == 'n':
+            hand = dealHand(HAND_SIZE)
+            n = calculateHandlen(hand)
+            playHand(hand,wordList,n)
+        elif option == 'r':
+            if hand:
+                n = calculateHandlen(hand)
+                playHand(hand,wordList,n)
+            else:
+                print('You have not played a hand yet. Please play a new hand first!')
+        elif option == 'e':
+            print('Game over')
+            break
         else:
-            print('Invalid input')
-    elif option == 'e':
-        print('Game over')
-    else:
-        print('Invalid input')
+            print('Invalid command')
 
 
 
@@ -317,4 +330,8 @@ def playGame(wordList):
 #
 if __name__ == '__main__':
     wordList = loadWords()
-    #playGame(wordList)
+    #playHand({'h':1, 'i':1, 'c':1, 'z':1, 'm':2, 'a':1}, wordList, 7)
+    #playHand({'w':1, 's':1, 't':2, 'a':1, 'o':1, 'f':1}, wordList, 7)
+    #playHand({'n':1, 'e':1, 't':1, 'a':1, 'r':1, 'i':2}, wordList, 7)
+    #playHand({'n':2, 'e':1, 'r':1, 'i':1}, wordList, 5)
+    playGame(wordList)

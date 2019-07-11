@@ -68,7 +68,6 @@ def compPlayHand(hand, wordList, n):
     # As long as there are still letters left in the hand:
     while (calculateHandlen(hand) > 0) :
         # Display the hand
-        print("Current Hand: ", end=' ')
         displayHand(hand)
         # computer's word
         word = compChooseWord(hand, wordList, n)
@@ -88,7 +87,7 @@ def compPlayHand(hand, wordList, n):
                 # Tell the user how many points the word earned, and the updated total score 
                 score = getWordScore(word, n)
                 totalScore += score
-                print('"' + word + '" earned ' + str(score) + ' points. Total: ' + str(totalScore) + ' points')              
+                print('"' + word + '" earned ' + str(score) + ' points. Total score: ' + str(totalScore) + ' points')              
                 # Update hand and show the updated hand to the user
                 hand = updateHand(hand, word)
                 print()
@@ -125,7 +124,35 @@ def playGame(wordList):
     wordList: list (string)
     """
     # TO DO... <-- Remove this comment when you code this function
-    print("playGame not yet implemented.") # <-- Remove this when you code this function
+    hand = None
+    while True:
+        option = input('Enter n to deal a new hand, r to replay the last hand, or e to end game:')
+        option = option.lower()
+        if option == 'n':
+            hand = dealHand(HAND_SIZE)
+            n = calculateHandlen(hand)
+            player_option = input('Enter u to have yourself play, c to have the computer play:')
+            player_option = player_option.lower()
+            if player_option == 'c':    
+                compPlayHand(hand,wordList,n)
+            else:
+                playHand(hand,wordList,n)
+        elif option == 'r':
+            if hand:
+                n = calculateHandlen(hand)
+                player_option = input('Enter u to have yourself play, c to have the computer play:')
+                player_option = player_option.lower()
+                if player_option == 'c':    
+                    compPlayHand(hand,wordList,n)
+                else:
+                    playHand(hand,wordList,n)
+            else:
+                print('You have not played a hand yet. Please play a new hand first!')
+        elif option == 'e':
+            print('Game over')
+            break
+        else:
+            print('Invalid command')
 
         
 #
