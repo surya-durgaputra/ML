@@ -102,20 +102,23 @@ class Message(object):
         Returns: a dictionary mapping a letter (string) to 
                  another letter (string). 
         '''
+        mapper = {}
         a = 97
         z = 122
         Z = 90
         A = 65
-        mapper = {}
-        for alpha in range(A,Z+1,1):
-            alpha_lower = alpha + a - A
-            mapped_char_upper = alpha + shift
-            mapped_char_lower = alpha_lower + shift
-            if mapped_char_upper > Z:
-                mapped_char_upper = mapped_char_upper - Z + A - 1
-                mapped_char_lower = mapped_char_lower - z + a - 1
-            mapper[str(chr(alpha))] = str(chr(mapped_char_upper))
-            mapper[str(chr(alpha_lower))] = str(chr(mapped_char_lower))
+        
+        if 0 <= shift < 26:
+            for alpha in range(A,Z+1,1):
+                alpha_lower = alpha + a - A
+                mapped_char_upper = alpha + shift
+                mapped_char_lower = alpha_lower + shift
+                if mapped_char_upper > Z:
+                    mapped_char_upper = mapped_char_upper - Z + A - 1
+                    mapped_char_lower = mapped_char_lower - z + a - 1
+                mapper[str(chr(alpha))] = str(chr(mapped_char_upper))
+                mapper[str(chr(alpha_lower))] = str(chr(mapped_char_lower))
+                
         return mapper
 
        
@@ -132,13 +135,15 @@ class Message(object):
         Returns: the message text (string) in which every character is shifted
              down the alphabet by the input shift
         '''
+        
         mapper = self.build_shift_dict(shift)
         message = []
-        for char in self.message_text:
-            if char not in mapper.keys():
-                message.append(char)
-            else:
-                message.append(mapper[char])
+        if 0 <= shift < 26:
+            for char in self.message_text:
+                if char not in mapper.keys():
+                    message.append(char)
+                else:
+                    message.append(mapper[char])
         return ''.join(message)
         
 
@@ -161,7 +166,9 @@ class PlaintextMessage(Message):
         code is repeated
         '''
         Message.__init__(self,text)
-        self.shift = 0
+        self.shift = shift
+        self.encrypting_dict = self.build_shift_dict(shift)
+        self.message_text_encrypted = self.apply_shift(shift)
 
     def get_shift(self):
         '''
@@ -177,7 +184,8 @@ class PlaintextMessage(Message):
         
         Returns: a COPY of self.encrypting_dict
         '''
-        pass #delete this line and replace with your code here
+        # returning a shallow copy
+        return self.encrypting_dict.copy()
 
     def get_message_text_encrypted(self):
         '''
@@ -185,7 +193,7 @@ class PlaintextMessage(Message):
         
         Returns: self.message_text_encrypted
         '''
-        pass #delete this line and replace with your code here
+        return self.message_text_encrypted
 
     def change_shift(self, shift):
         '''
@@ -198,7 +206,10 @@ class PlaintextMessage(Message):
 
         Returns: nothing
         '''
-        self.shift = shift
+        if 0 <= shift < 26:
+            self.shift = shift
+            self.encrypting_dict = self.build_shift_dict(shift)
+            self.message_text_encrypted = self.apply_shift(shift)
 
 
 class CiphertextMessage(Message):
@@ -212,7 +223,8 @@ class CiphertextMessage(Message):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
+        Message.__init__(self,text)
+        
 
     def decrypt_message(self):
         '''
@@ -230,7 +242,22 @@ class CiphertextMessage(Message):
         Returns: a tuple of the best shift value used to decrypt the message
         and the decrypted message text using that shift value
         '''
-        pass #delete this line and replace with your code here
+        
+        best_word_count = 0
+        best_shift = 0
+
+        for shift in range(0,26):
+            message = self.apply_shift(shift)
+            message_list = message.split(' ')
+            word_count = 0
+            for word in message_list:
+                if word in self.valid_words:
+                    word_count += 1
+            if word_count > best_word_count:
+                best_word_count = word_count
+                best_shift = shift
+        
+        return best_shift,self.apply_shift(best_shift)
 
 #Example test case (PlaintextMessage)
 plaintext = PlaintextMessage('hello', 2)
@@ -241,3 +268,7 @@ print('Actual Output:', plaintext.get_message_text_encrypted())
 ciphertext = CiphertextMessage('jgnnq')
 print('Expected Output:', (24, 'hello'))
 print('Actual Output:', ciphertext.decrypt_message())
+
+cipherStory = CiphertextMessage(get_story_string())
+print('Actual Output:', cipherStory.decrypt_message())
+
